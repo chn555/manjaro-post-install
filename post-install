@@ -4,6 +4,9 @@
 sudo pacman -Syu --noconfirm
 sudo pacman -S pacaur --needed --noconfirm
 
+
+ gpg --recv-keys 8F0871F202119294
+
 pacaur -S --needed discord vim ssh steam chromium virtualbox ncdu --noconfirm --noedit
 
 pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
