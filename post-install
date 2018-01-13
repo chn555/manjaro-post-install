@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+sudo pacman -Syu --noconfirm
+sudo pacman -S pacaur --needed --noconfirm
+
+pacaur -S --needed discord vim ssh steam chromium virtualbox ncdu --noconfirm --noedit
+
+pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
+
+xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
+xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta"
