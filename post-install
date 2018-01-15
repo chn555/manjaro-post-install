@@ -11,9 +11,26 @@ gpg --recv-keys 8F0871F202119294
 # add needed virtualbox kernel modules
 # seperate all install commands
 #output to log
-pacaur -S --needed discord vim ssh steam chromium virtualbox ncdu --noconfirm --noedit
+pacaur -S --needed discord vim ssh steam chromium virtualbox ncdu tilix --noconfirm --noedit
 
 pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
 
 xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
 xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta"
+
+grub ()
+{
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub ;;
+sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub ;;
+sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub ;;
+grub-mkconfig
+}
+
+xmodmap -e "keycode 67=XF86Back NoSymbol XF86Back"
+xmodmap -e "keycode 68=XF86Forward NoSymbol XF86Forward"
+xmodmap -e "keycode 69=XF86Reload NoSymbol XF86Reload"
+xmodmap -e "keycode 72=XF86MonBrightnessDown NoSymbol XF86MonBrightnessDown"
+xmodmap -e "keycode 73=XF86MonBrightnessUp NoSymbol XF86MonBrightnessUp"
+xmodmap -e "keycode 74=XF86AudioMute NoSymbol XF86AudioMute"
+xmodmap -e "keycode 75=XF86AudioLowerVolume NoSymbol XF86AudioLowerVolume"
+xmodmap -e "keycode 76=XF86AudioRaiseVolume NoSymbol XF86AudioRaiseVolume"
