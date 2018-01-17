@@ -7,9 +7,15 @@
 update ()
 {
 # update system
-sudo pacman -Syu --noconfirm
+sudo pacman -Syu --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
 
+if [[ $? -eq 0 ]];then
+  echo "System update completed successfully, moving on"
+else
+  echo "Something went wrong, stopping. check internet connection"
+fi
 sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
+
 }
 
 
@@ -20,15 +26,19 @@ installation ()
   echo "setting keys for download"
 gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
  echo "downloading and installing software"
-
-apps = ( git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli )
-for app in {apps[*]}; do
+  printf "\n"
+apps=(git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli)
+for app in ${apps[*]}; do
+  echo "Installing $app, please wait"
   pacaur -S $app --noconfirm --needed --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
     if [[ $? -eq 0 ]]; then
       echo "$app installed successfully"
+      printf "\n"
     else
-      echo "installation of $app failed, moving on"
+      printf "\n"
+      echo "installation of $app failed, see logs"
     fi
+    sleep 1
 done
 
 echo "downloading and installing themes"
@@ -43,9 +53,9 @@ xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta" >> /tmp/chn-
 
 grub ()
 {
-sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub ;;
-sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub ;;
-sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub ;;
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
+sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub
+sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
 grub-mkconfig  >> /tmp/chn-log 2>> /tmp/chn-error-log
 }
 
@@ -88,24 +98,32 @@ linux-samus ()
 }
 
 echo Updating system
+printf "\n"
 sleep 1
-update && echo System updated || echo Update failed, exiting && exit 1
+update && echo System updated  || echo Update failed, exiting
+printf "\n"
 
 echo Installing software
+printf "\n"
 sleep 1
 installation && echo Software installed || echo Installation failed, some were installed, see log && exit 1
 
 echo Configuring GRUB
+printf "\n"
 sleep 1
 grub && echo GRUB configured and updated || echo configuring GRUB failed, system might be fucked, good luck. && exit 1
 
 
 echo Setting device specific Setting
-sleep
+printf "\n"
+sleep 1
+
 linux-samus && echo "linux-samus used successfully, audio should be fine now" || echo "Something went wrong, exiting" && exit 1
 
 echo Setting keyboard binds
+printf "\n"
 sleep 1
+
 keybind && echo "Key binding set" || echo Key binding failed, moving on.
 
 
