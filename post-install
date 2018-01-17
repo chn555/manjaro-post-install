@@ -3,19 +3,42 @@
 #written by chn555 && BigRush
 #used for quick post installation setup of new install XFCE Manjaro.
 
+while getopts "v" arg; do
+  case $arg in
+    v)
+      echo "Starting in verbose mode"
+      verbose=1;;
+
+    *)
+      $arg flag invalid;;
+    esac
+done
 
 update ()
 {
 # update system
-sudo pacman -Syu --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
+if [[ $verbose -eq 1 ]]; then
 
-if [[ $? -eq 0 ]];then
-  echo "System update completed successfully, moving on"
+  sudo pacman -Syu --noconfirm
+
+  if [[ $? -eq 0 ]];then
+    echo "System update completed successfully, moving on"
+  else
+      echo "Something went wrong, stopping. check internet connection"
+  fi
+  sudo pacman -S pacaur --needed --noconfirm
+
 else
-  echo "Something went wrong, stopping. check internet connection"
-fi
-sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
 
+    sudo pacman -Syu --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
+
+    if [[ $? -eq 0 ]];then
+      echo "System update completed successfully, moving on"
+    else
+      echo "Something went wrong, stopping. check internet connection"
+    fi
+  sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
+fi
 }
 
 
@@ -23,14 +46,41 @@ sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-lo
 
 installation ()
 {
+  if [[ $verbose -eq 1 ]]; then
+    echo "setting keys for download"
+    gpg --recv-keys 8F0871F202119294
+    echo "downloading and installing software"
+    printf "\n"
+    apps=(git discord vim openssh steam chromium virtualbox ncdu tilix speedtest-cli)
+    for app in ${apps[*]}; do
+      echo "Installing $app, please wait"
+      pacaur -S $app --noconfirm --needed --noedit
+      if [[ $? -eq 0 ]]; then
+        echo "$app installed successfully"
+        printf "\n"
+      else
+        printf "\n"
+        echo "installation of $app failed, see logs"
+      fi
+      sleep 1
+    done
+    echo "downloading and installing themes"
+    pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
+    sleep 3
+    echo "Setting themes"
+    printf "\n"
+    #  xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
+    #  xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta"
+
+else
   echo "setting keys for download"
-gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
- echo "downloading and installing software"
+  gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
+  echo "downloading and installing software"
   printf "\n"
-apps=(git discord vim openssh steam chromium virtualbox ncdu tilix speedtest-cli)
-for app in ${apps[*]}; do
-  echo "Installing $app, please wait"
-  pacaur -S $app --noconfirm --needed --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
+  apps=(git discord vim openssh steam chromium virtualbox ncdu tilix speedtest-cli)
+  for app in ${apps[*]}; do
+    echo "Installing $app, please wait"
+    pacaur -S $app --noconfirm --needed --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
     if [[ $? -eq 0 ]]; then
       echo "$app installed successfully"
       printf "\n"
@@ -39,25 +89,35 @@ for app in ${apps[*]}; do
       echo "installation of $app failed, see logs"
     fi
     sleep 1
-done
+  done
+  echo "downloading and installing themes"
+  pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
+  sleep 3
+  echo "Setting themes"
+  printf "\n"
+  #  xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto" >> /tmp/chn-log 2>> /tmp/chn-error-log
+  #  xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta" >> /tmp/chn-log 2>> /tmp/chn-error-log
+fi
 
-echo "downloading and installing themes"
-#pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
 
-sleep 3
-echo "Setting themes"
-printf "\n"
-#  xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto" >> /tmp/chn-log 2>> /tmp/chn-error-log
-#  xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta" >> /tmp/chn-log 2>> /tmp/chn-error-log
+
 }
 
 
 grub ()
 {
-sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
-sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub
-sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
-sudo grub-mkconfig  >> /tmp/chn-log 2>> /tmp/chn-error-log
+if [[ $verbose -eq 1 ]]; then
+  sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
+  sudo grub-mkconfig
+else
+
+  sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
+  sudo grub-mkconfig  >> /tmp/chn-log 2>> /tmp/chn-error-log
+fi
 }
 
 keybind ()
@@ -91,17 +151,133 @@ echo    XF86AudioLowerVolume  >> ~/.xbindkeysrc
 
 linux-samus ()
 {
+
+if [[ $verbose -eq 1 ]]; then
+
+  cd ~
+  git clone --depth=1 https://github.com/raphael/linux-samus
+  bash ~/linux-samus/scripts/setup/audio/enable-audio.sh
+  bash ~/linux-samus/scripts/setup/audio/enable-speakers.sh
+
+else
   cd ~
   git clone --depth=1 https://github.com/raphael/linux-samus >> /tmp/chn-log 2>> /tmp/chn-error-log
   bash ~/linux-samus/scripts/setup/audio/enable-audio.sh >> /tmp/chn-log 2>> /tmp/chn-error-log
   bash ~/linux-samus/scripts/setup/audio/enable-speakers.sh >> /tmp/chn-log 2>> /tmp/chn-error-log
+fi
+}
 
+themes()
+{
+  echo '
+  <?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="xfce4-panel" version="1.0">
+  <property name="panels" type="uint" value="1">
+    <property name="panel-0" type="empty">
+      <property name="position" type="string" value="p=8;x=720;y=884"/>
+      <property name="length" type="uint" value="100"/>
+      <property name="position-locked" type="bool" value="true"/>
+      <property name="plugin-ids" type="array">
+        <value type="int" value="8"/>
+        <value type="int" value="10"/>
+        <value type="int" value="11"/>
+        <value type="int" value="14"/>
+        <value type="int" value="3"/>
+        <value type="int" value="7"/>
+        <value type="int" value="9"/>
+        <value type="int" value="4"/>
+        <value type="int" value="12"/>
+        <value type="int" value="6"/>
+        <value type="int" value="1"/>
+        <value type="int" value="5"/>
+        <value type="int" value="2"/>
+      </property>
+      <property name="role" type="string" value="xfce4-panel-12965750720"/>
+      <property name="length-adjust" type="bool" value="true"/>
+      <property name="background-style" type="uint" value="0"/>
+      <property name="size" type="uint" value="49"/>
+      <property name="mode" type="uint" value="0"/>
+      <property name="autohide-behavior" type="uint" value="0"/>
+      <property name="background-alpha" type="uint" value="0"/>
+    </property>
+  </property>
+  <property name="plugins" type="empty">
+    <property name="plugin-2" type="string" value="actions">
+      <property name="appearance" type="uint" value="0"/>
+      <property name="invert-orientation" type="bool" value="false"/>
+      <property name="items" type="array">
+        <value type="string" value="-logout-dialog"/>
+        <value type="string" value="-switch-user"/>
+        <value type="string" value="-separator"/>
+        <value type="string" value="+logout"/>
+        <value type="string" value="-lock-screen"/>
+        <value type="string" value="-hibernate"/>
+        <value type="string" value="-suspend"/>
+        <value type="string" value="-restart"/>
+        <value type="string" value="-shutdown"/>
+      </property>
+    </property>
+    <property name="plugin-6" type="string" value="systray">
+      <property name="names-visible" type="array">
+        <value type="string" value="pnmixer"/>
+        <value type="string" value="manjaro-settings-manager-daemon"/>
+        <value type="string" value="networkmanager applet"/>
+        <value type="string" value="msm notifier"/>
+        <value type="string" value="orage"/>
+        <value type="string" value="pamac-tray"/>
+        <value type="string" value="blueman-applet"/>
+        <value type="string" value="clipman"/>
+        <value type="string" value="xfce4-power-manager"/>
+        <value type="string" value="pa-applet"/>
+        <value type="string" value="xnoise"/>
+      </property>
+      <property name="size-max" type="uint" value="31"/>
+    </property>
+    <property name="plugin-3" type="string" value="tasklist">
+      <property name="grouping" type="uint" value="1"/>
+      <property name="show-handle" type="bool" value="false"/>
+      <property name="sort-order" type="uint" value="4"/>
+      <property name="show-labels" type="bool" value="false"/>
+      <property name="flat-buttons" type="bool" value="true"/>
+    </property>
+    <property name="plugin-7" type="string" value="separator">
+      <property name="expand" type="bool" value="true"/>
+      <property name="style" type="uint" value="1"/>
+    </property>
+    <property name="plugin-8" type="string" value="whiskermenu"/>
+    <property name="plugin-5" type="string" value="clock"/>
+    <property name="plugin-1" type="string" value="power-manager-plugin"/>
+    <property name="plugin-4" type="string" value="netload"/>
+    <property name="plugin-9" type="string" value="netload"/>
+    <property name="plugin-10" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15160481181.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-11" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15160481272.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-14" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="15160485923.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-12" type="string" value="pulseaudio">
+      <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
+    </property>
+  </property>
+  <property name="configver" type="int" value="2"/>
+</channel>
+' > ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 }
 
 echo Updating system
 printf "\n"
 sleep 1
-update && echo System updated  || echo Update failed
+update   || echo Update failed
 printf "\n"
 
 echo Installing software
