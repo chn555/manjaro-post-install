@@ -93,4 +93,9 @@ linux-samus && echo "linux-samus used successfully, audio should be fine now" ||
 
 echo Setting keyboard binds
 sleep 1
-keybind && echo "Key binding set" || echo Key binding failed, moving on. 
+keybind && echo "Key binding set" || echo Key binding failed, moving on.
+
+
+
+#TODO set themes, I dont think that works yet
+#TODO check virtualbox, i think further modules are needed, maybe set a machine
