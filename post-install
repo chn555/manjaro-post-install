@@ -17,12 +17,15 @@ sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-lo
 
 installation ()
 {
+  echo "setting keys for download"
 gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
-
+ echo "downloading and installing software"
 pacaur -S --needed git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
-
+echo "downloading and installing themes"
 pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
 
+sleep 3
+echo "Setting themes"
 xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto" >> /tmp/chn-log 2>> /tmp/chn-error-log
 xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta" >> /tmp/chn-log 2>> /tmp/chn-error-log
 }
@@ -33,7 +36,7 @@ grub ()
 sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub ;;
 sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub ;;
 sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub ;;
-grub-mkconfig
+grub-mkconfig  >> /tmp/chn-log 2>> /tmp/chn-error-log
 }
 
 keybind ()
