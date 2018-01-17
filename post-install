@@ -20,7 +20,17 @@ installation ()
   echo "setting keys for download"
 gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
  echo "downloading and installing software"
-pacaur -S --needed git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
+
+apps = ( git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli )
+for app in {apps[*]}; do
+  pacaur -S $app --noconfirm --needed --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
+    if [[ $? -eq 0 ]]; then
+      echo "$app installed successfully"
+    else
+      echo "installation of $app failed, moving on"
+    fi
+done
+
 echo "downloading and installing themes"
 pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
 
