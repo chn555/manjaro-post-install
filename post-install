@@ -27,7 +27,7 @@ installation ()
 gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
  echo "downloading and installing software"
   printf "\n"
-apps=(git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli)
+apps=(git discord vim openssh steam chromium virtualbox ncdu tilix speedtest-cli)
 for app in ${apps[*]}; do
   echo "Installing $app, please wait"
   pacaur -S $app --noconfirm --needed --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
@@ -100,25 +100,25 @@ linux-samus ()
 echo Updating system
 printf "\n"
 sleep 1
-update && echo System updated  || echo Update failed, exiting
+update && echo System updated  || echo Update failed
 printf "\n"
 
 echo Installing software
 printf "\n"
 sleep 1
-installation && echo Software installed || echo Installation failed, some were installed, see log && exit 1
+installation && echo Software installed || echo Installation failed, some were installed, see log
 
 echo Configuring GRUB
 printf "\n"
 sleep 1
-grub && echo GRUB configured and updated || echo configuring GRUB failed, system might be fucked, good luck. && exit 1
+grub && echo GRUB configured and updated || echo configuring GRUB failed, system might be fucked, good luck.
 
 
 echo Setting device specific Setting
 printf "\n"
 sleep 1
 
-linux-samus && echo "linux-samus used successfully, audio should be fine now" || echo "Something went wrong, exiting" && exit 1
+linux-samus && echo "linux-samus used successfully, audio should be fine now" || echo "Something went wrong"
 
 echo Setting keyboard binds
 printf "\n"
@@ -130,3 +130,4 @@ keybind && echo "Key binding set" || echo Key binding failed, moving on.
 
 #TODO set themes, I dont think that works yet
 #TODO check virtualbox, i think further modules are needed, maybe set a machine
+#TODO add verbose
