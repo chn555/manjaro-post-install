@@ -1,11 +1,15 @@
 #!/bin/bash
 
+#written by chn555 && BigRush
+#used for quick post installation setup of new install XFCE Manjaro.
+
+
 update ()
 {
 # update system
 sudo pacman -Syu --noconfirm
 
-sudo pacman -S pacaur --needed --noconfirm
+sudo pacman -S pacaur --needed --noconfirm >> /tmp/chn-log 2>> /tmp/chn-error-log
 }
 
 
@@ -13,14 +17,14 @@ sudo pacman -S pacaur --needed --noconfirm
 
 installation ()
 {
-gpg --recv-keys 8F0871F202119294
+gpg --recv-keys 8F0871F202119294 >> /tmp/chn-log 2>> /tmp/chn-error-log
 
-pacaur -S --needed discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli --noconfirm --noedit
+pacaur -S --needed git discord vim ssh steam chromium virtualbox ncdu tilix speedtest-cli --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
 
-pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
+pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
 
-xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto"
-xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta"
+xfconf-query -c xsettings -p /Net/ThemeName -s "Adapta-Nokto" >> /tmp/chn-log 2>> /tmp/chn-error-log
+xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Adapta" >> /tmp/chn-log 2>> /tmp/chn-error-log
 }
 
 
@@ -45,4 +49,48 @@ xmodmap -e "keycode 76=XF86AudioRaiseVolume NoSymbol XF86AudioRaiseVolume"
 xmodmap -e "keycode 114= Right End Right"
 xmodmap -e "keycode 113= Left Home Right"
 
+
+#audio keys bind
+
+echo  \"amixer set Master toggle\" > ~/.xbindkeysrc
+echo     m:0x0 + c:121  >> ~/.xbindkeysrc
+echo   XF86AudioMute  >> ~/.xbindkeysrc
+echo \"amixer set PCM 2dB+\" >> ~/.xbindkeysrc
+echo     m:0x0 + c:123 >> ~/.xbindkeysrc
+echo     XF86AudioRaiseVolume >> ~/.xbindkeysrc
+echo \"amixer set PCM 2dB-\" >> ~/.xbindkeysrc
+echo    m:0x0 + c:122 >> ~/.xbindkeysrc
+echo    XF86AudioLowerVolume  >> ~/.xbindkeysrc
+
+
 }
+
+linux-samus ()
+{
+  cd ~
+  git clone --depth=1 https://github.com/raphael/linux-samus >> /tmp/chn-log 2>> /tmp/chn-error-log
+  bash ~/linux-samus/scripts/setup/audio/enable-audio.sh >> /tmp/chn-log 2>> /tmp/chn-error-log
+  bash ~/linux-samus/scripts/setup/audio/enable-speakers.sh >> /tmp/chn-log 2>> /tmp/chn-error-log
+
+}
+
+echo Updating system
+sleep 1
+update && echo System updated || echo Update failed, exiting && exit 1
+
+echo Installing software
+sleep 1
+installation && echo Software installed || echo Installation failed, some were installed, see log && exit 1
+
+echo Configuring GRUB
+sleep 1
+grub && echo GRUB configured and updated || echo configuring GRUB failed, system might be fucked, good luck. && exit 1
+
+
+echo Setting device specific Setting
+sleep
+linux-samus && echo "linux-samus used successfully, audio should be fine now" || echo "Something went wrong, exiting" && exit 1
+
+echo Setting keyboard binds
+sleep 1
+keybind && echo "Key binding set" || echo Key binding failed, moving on. 
