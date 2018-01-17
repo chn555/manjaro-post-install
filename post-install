@@ -67,7 +67,7 @@ installation ()
       sleep 1
     done
     echo "downloading and installing themes"
-    pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
+    #pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit
     sleep 3
     echo "Setting themes"
     printf "\n"
@@ -92,7 +92,7 @@ else
     sleep 1
   done
   echo "downloading and installing themes"
-  pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
+  #pacaur -S -needed adapta-gtk-theme-git papirus-icon-theme-git --noconfirm --noedit >> /tmp/chn-log 2>> /tmp/chn-error-log
   sleep 3
   echo "Setting themes"
   printf "\n"
@@ -116,13 +116,13 @@ if [[ $verbose -eq 1 ]]; then
 else
 
   #set grub timeout to 0
-  sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub
+  sudo sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/' /etc/default/grub >> /tmp/chn-log 2>> /tmp/chn-error-log
   #set hidden timeout to 1 so you can access the grub if you press esc while booting
-  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT=1/GRUB_HIDDEN_TIMEOUT=1/' /etc/default/grub >> /tmp/chn-log 2>> /tmp/chn-error-log
   #enable hidden timeout
-  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub
+  sudo sed -i 's/#GRUB_HIDDEN_TIMEOUT_QUIET=true/GRUB_HIDDEN_TIMEOUT_QUIET=true/' /etc/default/grub >> /tmp/chn-log 2>> /tmp/chn-error-log
   #apply settings to grubb
-  sudo grub-mkconfig
+  sudo grub-mkconfig >> /tmp/chn-log 2>> /tmp/chn-error-log
 fi
 }
 
@@ -277,29 +277,28 @@ themes()
 echo Updating system
 printf "\n"
 sleep 1
-update  || $(echo "Update failed" && exit 1)
+$( echo update && echo update successful)  || $(echo "Update failed" && exit 1)
 printf "\n"
 
 echo Installing software
 sleep 1
-$(installation && echo Software installed) ||$( echo Installation failed, some were installed, see log
-printf "\n" && exit 1)
+$( echo installation && echo software installed) || $( echo Installation failed, some were installed, see log printf "\n" && exit 1)
 
 echo Configuring GRUB
 sleep 1
-$(grub && echo GRUB configured and updated) || $(echo configuring GRUB failed, system might be fucked, good luck. && exit 1)
+$( echo "grub" && echo GRUB configured and updated ) || $(echo "configuring GRUB failed, system might be fucked, good luck." && exit 1)
 printf "\n"
 
 echo Setting device specific Setting
 sleep 1
-$(linux-samus && echo "linux-samus used successfully, audio should be fine now" ) || $(echo "Something went wrong" && exit 1)
+$( echo linux-samus && echo "linux-samus used successfully, audio should be fine now" ) || $(echo "Something went wrong" && exit 1)
 printf "\n"
 
 echo Setting keyboard binds
 sleep 1
-$(keybind && echo "Key binding set") || $(echo Key binding failed, moving on. && exit 1)
+$( echo keybind && echo "Key binding set") || $(echo Key binding failed, moving on. && exit 1)
 printf "\n"
-)
+
 echo Done, enjoy,
 
 #TODO set themes, I dont think that works yet
